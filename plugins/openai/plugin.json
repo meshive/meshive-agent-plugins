@@ -11,8 +11,8 @@
   "extensions": {
     "com.openai": {
       "interface": {
-        "displayName": "Meshive GPU Cloud",
-        "shortDescription": "Compare hourly GPU prices",
+        "displayName": "Meshive",
+        "shortDescription": "Manage GPU pods and storage",
         "longDescription": "Compare GPU rental prices by the hour before signing in. Connect your Meshive account to see which pods are running across your workspaces, manage storage, and deploy models. The actions you can take depend on your workspace permissions.",
         "developerName": "Meshive",
         "category": "Developer Tools",

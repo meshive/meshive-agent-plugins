@@ -4,7 +4,7 @@ Use Meshive in Claude Code or Codex to compare GPU rental prices and list pods a
 
 ## Installation
 
-Run the commands for your client in a terminal. While this repository is private, Git needs to be authenticated with a GitHub account that has read access. Installing the plugin registers the `meshive` MCP server.
+Run the commands for your client in a terminal. Both clients install from the public repository's default release branch, `real`, without a GitHub sign-in. Installing the plugin registers the `meshive` MCP server.
 
 ### Claude Code
 
@@ -33,7 +33,7 @@ Open a new Codex session and try one of the prompts below.
 | “Which GPUs can I rent on Meshive, and how much do they cost per hour?” | `gpus` | Public prices are available without signing in. |
 | “List my Meshive pods across all my workspaces.” | `pods` | Where OAuth is enabled, follow your client's Meshive sign-in prompt, approve read access in your browser, and repeat the request. |
 
-GitHub sign-in gives you access to this plugin repository. Meshive sign-in gives you access to your own resources. For instructions on connecting with a manual MCP access token and the full tool reference, see the [Meshive MCP guide](https://docs.meshive.ai/sdk-cli/mcp/).
+Sign in to Meshive to access your own resources. For instructions on connecting with a manual MCP access token and the full tool reference, see the [Meshive MCP guide](https://docs.meshive.ai/sdk-cli/mcp/).
 
 ## Update an existing installation
 
@@ -74,11 +74,13 @@ From the repository root, run the following command to check the marketplace pat
 python3 -B -m unittest discover -s tests -v
 ```
 
-To test an upgrade in both clients, you need a configured Git author, `tar`, both client CLIs, and network access to the dev MCP server. The test creates a local Git marketplace and a fresh profile for each client. It points the test copies at the dev server, installs 0.1.0 in each profile, and upgrades to the version in your working tree. It then checks that each client lists the `gpus` and `pods` tools. This check runs without model calls or a Meshive login.
+To test an upgrade, you need Git with a configured author, both client CLIs, and network access to the public Meshive MCP server. The original 0.1.0 marketplace and plugin manifests are included in `tests/fixtures/0.1.0/`. The revised 0.1.0 package differed only in its Codex MCP configuration.
+
+From a fresh public clone, run either command below. Each creates temporary client profiles, installs the selected 0.1.0 package from a local Git marketplace, and upgrades to the version in your working tree. The test checks that each client lists `gpus` and `pods` on the public server. It does not call either tool or require GitHub credentials, a Meshive login, or model calls.
 
 ```sh
 python3 -B tests/check_upgrade.py                     # Original 0.1.0 release
-python3 -B tests/check_upgrade.py --from-ref 304a593  # 0.1.0 with the revised Codex configuration
+python3 -B tests/check_upgrade.py --baseline revised  # Revised 0.1.0 release
 ```
 
-The test uses `claude` and `codex` from your path by default. To test a specific executable, set `CLAUDE_BIN` or `CODEX_BIN` to its path.
+To check the dev server from a network that can reach it, add `--dev-mcp` to either command. The test uses `claude` and `codex` from your path by default. To test a specific executable, set `CLAUDE_BIN` or `CODEX_BIN` to its path.
