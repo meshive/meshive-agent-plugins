@@ -1,4 +1,4 @@
-"""Run both installed clients against a private, temporary Git marketplace and dev MCP."""
+"""Test a plugin upgrade in both clients using a temporary Git marketplace."""
 
 import argparse
 import asyncio
@@ -12,6 +12,7 @@ from pathlib import Path
 from discover_tools import list_tools
 
 ROOT = Path(__file__).resolve().parents[1]
+RELEASE_010 = ROOT / "tests/fixtures/0.1.0"
 MARKET_URL = "https://github.com/meshive/meshive-agent-plugins.git"
 PLUGIN = "meshive@meshive-plugins"
 PUBLISHED_MCP = "https://mcp.meshive.ai/mcp"
@@ -24,8 +25,8 @@ def run(*args, cwd, env=None):
                           stdout=subprocess.PIPE, timeout=90).stdout
 
 
-def package_snapshot(market, checkout, ref=None):
-    """Only the endpoint changes in these copies. Each revision is served through Git."""
+def package_snapshot(market, checkout, mcp_url, *, ref=None, revised_codex=False):
+    """Serve a copy of the client packages through a local Git marketplace."""
     for name in PACKAGE_DIRS:
         target = market / name
         if target.exists():
@@ -40,12 +41,25 @@ def package_snapshot(market, checkout, ref=None):
         config = market / path
         value = json.loads(config.read_text())
         server = value["mcpServers"]["meshive"]
+        if revised_codex and path == "plugins/openai/mcp.json":
+            # The revised 0.1.0 package removed this field so Codex could load the server.
+            del server["extensions"]
         if server["url"] != PUBLISHED_MCP:
             raise ValueError(f"Unexpected endpoint in {path}")
-        server["url"] = DEV_MCP
+        server["url"] = mcp_url
         config.write_text(json.dumps(value, indent=2) + "\n")
     run("git", "add", "--all", cwd=market)
     run("git", "-c", "commit.gpgSign=false", "commit", "-qm", "Snapshot plugin packages for upgrade test", cwd=market)
+
+
+def package_baseline(market, baseline, mcp_url):
+    # Keep the historical --from-ref commands usable in a public clone.
+    if baseline in ("original", "cd730f0", "cd730f08a2ec0fbbcfa1920c4cab5231b75478d0"):
+        package_snapshot(market, RELEASE_010, mcp_url)
+    elif baseline in ("revised", "304a593", "304a5935a5dc95d22a3450e66e1970b9aaf7dcd5"):
+        package_snapshot(market, RELEASE_010, mcp_url, revised_codex=True)
+    else:
+        package_snapshot(market, ROOT, mcp_url, ref=baseline)
 
 
 def installed_version(client, executable, project, env):
@@ -57,13 +71,13 @@ def installed_version(client, executable, project, env):
     return entry["version"]
 
 
-def check_upgrade(tmp, baseline):
+def check_upgrade(tmp, baseline, mcp_url):
     market = tmp / "market"
     project = tmp / "project"
     market.mkdir()
     project.mkdir()
     run("git", "init", "-qb", "dev", cwd=market)
-    package_snapshot(market, ROOT, baseline)
+    package_baseline(market, baseline, mcp_url)
 
     env = os.environ.copy()
     for key in ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "CLAUDE_CODE_OAUTH_TOKEN",
@@ -93,7 +107,7 @@ def check_upgrade(tmp, baseline):
     expected = json.loads((ROOT / "plugins/openai/plugin.json").read_text())["version"]
     if expected == "0.1.0":
         raise AssertionError("Candidate must offer an upgrade from 0.1.0")
-    package_snapshot(market, ROOT)
+    package_snapshot(market, ROOT, mcp_url)
     for client, exe in clients.items():
         if client == "claude":
             run(exe, "plugin", "marketplace", "update", "meshive-plugins", cwd=project, env=env)
@@ -107,12 +121,17 @@ def check_upgrade(tmp, baseline):
         missing = {"gpus", "pods"} - tools
         if missing:
             raise AssertionError(f"{client}: missing tools {sorted(missing)}")
-        print(f"{client}: updated to {version}; {len(tools)} dev tools, including gpus and pods", flush=True)
+        print(f"{client}: updated to {version}; {len(tools)} tools at {mcp_url}, including gpus and pods", flush=True)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--from-ref", default="cd730f0", help="Git revision of the installed 0.1.0")
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument("--baseline", choices=("original", "revised"), default="original",
+                        help="Bundled 0.1.0 package to install first (default: original)")
+    source.add_argument("--from-ref", help="Use a 0.1.0 revision available in this Git checkout")
+    parser.add_argument("--dev-mcp", action="store_true", help="Check tools on the dev MCP server")
     args = parser.parse_args()
     with tempfile.TemporaryDirectory(prefix="meshive-upgrade-") as directory:
-        check_upgrade(Path(directory).resolve(), args.from_ref)
+        check_upgrade(Path(directory).resolve(), args.from_ref or args.baseline,
+                      DEV_MCP if args.dev_mcp else PUBLISHED_MCP)

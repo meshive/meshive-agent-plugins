@@ -1,0 +1,19 @@
+{
+  "name": "meshive-plugins",
+  "interface": {
+    "displayName": "Meshive"
+  },
+  "plugins": [
+    {
+      "name": "meshive",
+      "source": {
+        "source": "local",
+        "path": "./plugins/openai"
+      },
+      "category": "Developer Tools",
+      "policy": {
+        "authentication": "ON_USE"
+      }
+    }
+  ]
+}
