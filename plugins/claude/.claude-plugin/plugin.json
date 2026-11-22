@@ -8,6 +8,10 @@
     "url": "https://meshive.ai"
   },
   "homepage": "https://docs.meshive.ai/sdk-cli/mcp/",
+  "repository": "https://github.com/meshive/meshive-agent-plugins",
+  "keywords": ["gpu", "cloud-computing", "pods"],
+  "supportUrl": "https://docs.meshive.ai/getting-started/faq/#-troubleshooting",
+  "termsOfServiceUrl": "https://meshive.ai/terms-of-service",
   "icon": "./.claude-plugin/icon.png",
   "privacyPolicyUrl": "https://meshive.ai/privacy-policy"
 }
