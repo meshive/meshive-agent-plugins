@@ -1,0 +1,13 @@
+{
+  "name": "meshive-plugins",
+  "owner": {
+    "name": "Meshive"
+  },
+  "plugins": [
+    {
+      "name": "meshive",
+      "source": "./plugins/claude",
+      "description": "Check GPU rental prices and manage Meshive pods, storage, model deployments, and tasks."
+    }
+  ]
+}

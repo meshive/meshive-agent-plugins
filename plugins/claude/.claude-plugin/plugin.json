@@ -1,0 +1,13 @@
+{
+  "name": "meshive",
+  "version": "0.1.1",
+  "license": "Apache-2.0",
+  "description": "Check GPU rental prices and manage Meshive pods, storage, model deployments, and tasks.",
+  "author": {
+    "name": "Meshive",
+    "url": "https://meshive.ai"
+  },
+  "homepage": "https://docs.meshive.ai/sdk-cli/mcp/",
+  "icon": "./.claude-plugin/icon.png",
+  "privacyPolicyUrl": "https://meshive.ai/privacy-policy"
+}

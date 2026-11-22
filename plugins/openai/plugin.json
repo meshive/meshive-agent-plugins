@@ -1,0 +1,28 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "meshive",
+  "version": "0.1.1",
+  "description": "Check GPU rental prices and manage Meshive pods, storage, model deployments, and tasks.",
+  "author": {
+    "name": "Meshive",
+    "url": "https://meshive.ai"
+  },
+  "homepage": "https://docs.meshive.ai/sdk-cli/mcp/",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Meshive GPU Cloud",
+        "shortDescription": "Compare hourly GPU prices",
+        "longDescription": "Compare GPU rental prices by the hour before signing in. Connect your Meshive account to see which pods are running across your workspaces, manage storage, and deploy models. The actions you can take depend on your workspace permissions.",
+        "developerName": "Meshive",
+        "category": "Developer Tools",
+        "websiteURL": "https://meshive.ai",
+        "supportURL": "https://docs.meshive.ai/getting-started/faq/#-troubleshooting",
+        "privacyPolicyURL": "https://meshive.ai/privacy-policy",
+        "termsOfServiceURL": "https://meshive.ai/terms-of-service",
+        "logo": "./assets/icon.png",
+        "composerIcon": "./assets/icon.png"
+      }
+    }
+  }
+}
