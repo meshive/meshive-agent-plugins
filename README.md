@@ -61,10 +61,10 @@ If Codex has version 0.1.0 installed and shows no Meshive tools, update to 0.1.1
 Run the packager from the repository root with a local output path.
 
 ```sh
-python3 scripts/package_codex.py /tmp/meshive-codex.zip
+python3 scripts/package_codex.py --version 0.1.2 /tmp/meshive-codex.zip
 ```
 
-The ZIP contains the tracked Codex plugin files and a copy of the repository's Apache 2.0 `LICENSE` at its root. The packager adds `mixed` authentication to the archived `mcp.json` so users can check public GPU prices anonymously and sign in with OAuth to access their Meshive resources. Git marketplace installs read `plugins/openai/mcp.json` directly.
+OpenAI requires a higher version for updates. Use `--version` to set the directory release version independently of the Git installs. The submission ZIP uses the Codex compatibility layout. The packager writes the listing to `.codex-plugin/plugin.json` and the production MCP server and mixed OAuth configuration to `.mcp.json`. It also includes the plugin assets and the Apache 2.0 `LICENSE`. Users can check public GPU prices anonymously and sign in to access their Meshive resources. Git marketplace installs use the portable configuration in `plugins/openai/mcp.json`.
 
 ## Compatibility tests
 
